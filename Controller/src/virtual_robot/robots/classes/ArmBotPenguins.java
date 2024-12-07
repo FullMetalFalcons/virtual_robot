@@ -10,17 +10,21 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Transform;
 import org.dyn4j.geometry.Vector2;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import virtual_robot.controller.BotConfig;
 import virtual_robot.controller.Filters;
+import virtual_robot.controller.VirtualBot;
 import virtual_robot.controller.VirtualField;
 import virtual_robot.dyn4j.Dyn4jUtil;
 import virtual_robot.dyn4j.FixtureData;
@@ -84,8 +88,12 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     Translate hangerTranslateTransform;
     Translate leftFingerTranslateTransform;
     Translate rightFingerTranslateTransform;
+    Translate sideArmTranslate;
 
     Rotate armRotate;
+    Rotate rightFingerRotate;
+    Rotate leftFingerRotate;
+    Rotate sideArmRotate;
 
     /*
      * Current Y-translation of the arm, in pixels. 0 means fully retracted. 50 means fully extended.
@@ -152,6 +160,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
         armRotate = new Rotate(0, halfBotWidth, halfBotWidth*2);
+        rightFingerRotate = new Rotate(0, halfBotWidth+(45/2), halfBotWidth*2);
+        leftFingerRotate = new Rotate(0, halfBotWidth-(45/2), halfBotWidth*2);
         armGroup.getTransforms().add(armRotate);
 
         slideTranslateTransform = new Translate(0, 0);
@@ -166,11 +176,11 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         leftFingerTranslateTransform = new Translate(0, 0);
         leftFingerGroup.getTransforms().add(leftFingerTranslateTransform);
-        leftFingerGroup.getTransforms().add(armRotate);
+        leftFingerGroup.getTransforms().add(leftFingerRotate);
 
         rightFingerTranslateTransform = new Translate(0, 0);
         rightFingerGroup.getTransforms().add(rightFingerTranslateTransform);
-        rightFingerGroup.getTransforms().add(armRotate);
+        rightFingerGroup.getTransforms().add(rightFingerRotate);
         /*
          * Create the dyn4j Body for the arm; it will have two BodyFixtures, one corresponding to the "arm" javafx ,
          * Shape, and the other to the "hand" shape. Each of those will be created using a different FixtureData, to allow the
@@ -210,6 +220,45 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         rightFingerSlide = new Slide(armBody, rightFingerBody, new Vector2(0, 0), new Vector2(-1, 0),
                 VirtualField.Unit.PIXEL);
         world.addJoint(rightFingerSlide);
+
+        setupStaticSideBotView();
+    }
+
+    /**
+     * Setup the static side view of the bot that shows just the arm position
+     */
+    protected Group setupStaticSideBotView(){
+        final String sideViewFilename = "/virtual_robot/robots/fxml/arm_bot_side_view.fxml";
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(sideViewFilename));
+            Group sideViewGroup = (Group) loader.load();
+
+            // This moves the sideways bot just to the top left of the field
+            sideViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));
+
+            /*
+             * The following transforms will be appled in the reverse order to that in which they are added
+             */
+
+            // This will be used to extend the arm
+            sideArmTranslate = new Translate(0, 0);
+            //armSideGroup.getTransforms().add(sideArmTranslate);
+
+            // This will be used to display the bot at the correct heading
+            sideArmRotate = new Rotate(0, halfBotWidth, halfBotWidth);
+            //armSideGroup.getTransforms().add(sideArmRotate);
+
+            // This will adjust the bot to the correct size, based on size of the field display
+            sideViewGroup.getTransforms().add(new Scale(botWidth/75, botWidth/75, 0, 0));
+
+            fieldPane.getChildren().add(sideViewGroup);
+            return sideViewGroup;
+        } catch (Exception e){
+            System.out.println("Unable to load " + sideViewFilename + " configuration.");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -247,7 +296,12 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         armMotor.update(millis);
         armTranslation = armMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
         armRotate.setAngle(armTranslation);
+        leftFingerRotate.setAngle(armTranslation);
+        rightFingerRotate.setAngle(armTranslation);
         armRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
+        leftFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
+        rightFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
+
 
         hangerMotor.update(millis);
         //hangerTranslation = hangerMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
