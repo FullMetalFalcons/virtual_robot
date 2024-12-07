@@ -48,7 +48,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     DcMotorImpl methods (such as update()) that are intended for internal use, and are not part of the
     DcMotor interface. The drive motors are stored in an array of DcMotorImpl.
      */
+    private DcMotorExImpl slideMotor = null;
     private DcMotorExImpl armMotor = null;
+    private DcMotorExImpl hangerMotor = null;
 
     //Servo to control the hand at the end of the arm. Note use of ServoImpl class rather than Servo interface.
     private ServoImpl handServo = null;
@@ -60,6 +62,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     For example, the attribute for the arm would be:  fx:id="arm"
      */
     @FXML private Group armGroup;
+    //@FXML private Group slideGroup;
+    //@FXML private Group hangerGroup;
+
     @FXML private Rectangle arm;
     @FXML private Rectangle hand;
     @FXML private Group leftFingerGroup;
@@ -74,13 +79,15 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
      * updateDisplay() method to manipulate the arm, hand, and fingers.
      */
     Translate armTranslateTransform;
+    Translate slideTranslateTransform;
+    Translate hangerTranslateTransform;
     Translate leftFingerTranslateTransform;
     Translate rightFingerTranslateTransform;
 
     /*
      * Current Y-translation of the arm, in pixels. 0 means fully retracted. 50 means fully extended.
      */
-    private double armTranslation = 0;
+    private double slideTranslation = 0;
 
     /*
      * Current X-translation of the fingers, in pixels. 0 means fully open.
@@ -117,9 +124,17 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         //Temporarily activate the hardware map to allow calls to "get"
         hardwareMap.setActive(true);
 
-        armMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "arm_motor");
+        slideMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "slide");
+        slideMotor.setActualPositionLimits(0, 2240);
+        slideMotor.setPositionLimitsEnabled(true);
+
+        armMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "arm");
         armMotor.setActualPositionLimits(0, 2240);
         armMotor.setPositionLimitsEnabled(true);
+
+        hangerMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "linearActuator");
+        hangerMotor.setActualPositionLimits(0, 2240);
+        hangerMotor.setPositionLimitsEnabled(true);
 
         //Instantiate the hand servo. Note the cast to ServoImpl.
         handServo = (ServoImpl)hardwareMap.servo.get("claw");
@@ -132,6 +147,12 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
+
+        slideTranslateTransform = new Translate(0, 0);
+        //slideGroup.getTransforms().add(slideTranslateTransform);
+
+        hangerTranslateTransform = new Translate(0, 0);
+        //hangerGroup.getTransforms().add(hangerTranslateTransform);
 
         /*
          * Translates the position of the fingers in both X and Y dimensions. The X-translation is to open and close
@@ -191,7 +212,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         super.createHardwareMap();
 
         //Add the arm motor using HardwareMap.put(...) method
-        hardwareMap.put("arm_motor", new DcMotorExImpl(MotorType.Neverest40, motorController1, 0));
+        hardwareMap.put("slide", new DcMotorExImpl(MotorType.Neverest40, motorController2, 0));
+        hardwareMap.put("arm", new DcMotorExImpl(MotorType.Neverest40, motorController3, 1));
+        hardwareMap.put("linearActuator", new DcMotorExImpl(MotorType.Neverest40, motorController1, 2));
 
         //Add the ServoImpl object
         hardwareMap.put("claw", new ServoImpl());
@@ -210,9 +233,17 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          * It does not handle the display, of the arm--that will be done in the updateDisplay method, using the
          * new value of armTranslation.
          */
+        slideMotor.update(millis);
+        slideTranslation = slideMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
+        armSlide.setPosition(slideTranslation);
+
         armMotor.update(millis);
-        armTranslation = armMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
-        armSlide.setPosition(armTranslation);
+        //armTranslation = armMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
+        //armAngle.setPosition(slideTranslation);
+
+        hangerMotor.update(millis);
+        //hangerTranslation = hangerMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
+        //hangerAngle.setPosition(hangerTranslation);
 
         /*
          * Update the value of fingerPos, using the current position of the hand servo. Then set the position
@@ -238,9 +269,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
 
         // Extend or retract the arm based on the value of armScale.
 
-        armTranslateTransform.setY(-armTranslation);
-        leftFingerTranslateTransform.setY(-armTranslation);
-        rightFingerTranslateTransform.setY(-armTranslation);
+        armTranslateTransform.setY(-slideTranslation);
+        leftFingerTranslateTransform.setY(-slideTranslation);
+        rightFingerTranslateTransform.setY(-slideTranslation);
 
         // Mover fingers in the X-direction (i.e., open/close fingers) based on position of the handServo.
 
@@ -306,7 +337,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
      */
     public void powerDownAndReset(){
         super.powerDownAndReset();
+        slideMotor.stopAndReset();
         armMotor.stopAndReset();
+        hangerMotor.stopAndReset();
     }
 
 }

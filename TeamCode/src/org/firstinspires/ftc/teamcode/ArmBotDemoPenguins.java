@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -15,13 +16,30 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.util.Locale;
+
 /**
  * Example OpMode. Demonstrates use of gyro, color sensor, encoders, and telemetry.
  *
  */
 @TeleOp(name = "arm bot Penguins", group = "ArmBotPenguins")
 public class ArmBotDemoPenguins extends LinearOpMode {
-    DcMotorEx Arm;
+    public static class PARAMS {
+        // drive motor setup
+        public String leftFrontDriveName = "front_left_motor";
+        public String leftBackDriveName = "back_left_motor";
+        public String rightFrontDriveName = "front_right_motor";
+        public String rightBackDriveName = "back_right_motor";
+
+        public DcMotorSimple.Direction leftFrontDriveDirection = DcMotorSimple.Direction.REVERSE;
+        public DcMotorSimple.Direction leftBackDriveDirection = DcMotorSimple.Direction.REVERSE;
+        public DcMotorSimple.Direction rightFrontDriveDirection = DcMotorSimple.Direction.FORWARD;
+        public DcMotorSimple.Direction rightBackDriveDirection = DcMotorSimple.Direction.FORWARD;
+    }
+    PARAMS DRIVE_PARAMS = new PARAMS();
+
+    //Initialize motors, servos, sensors, imus, etc.
+    DcMotorEx m1, m2, m3, m4, Arm, Slide, Hanger;
     Servo Claw;
 
     // Encoder storage variables
@@ -34,58 +52,65 @@ public class ArmBotDemoPenguins extends LinearOpMode {
     int currentRobotLength = 0;
     final int MAX_ROBOT_LENGTH = 42;
 
-    public void runOpMode(){
-        DcMotor m1 = hardwareMap.dcMotor.get("back_left_motor");
-        DcMotor m2 = hardwareMap.dcMotor.get("front_left_motor");
-        DcMotor m3 = hardwareMap.dcMotor.get("front_right_motor");
-        DcMotor m4 = hardwareMap.dcMotor.get("back_right_motor");
-        m1.setDirection(DcMotor.Direction.REVERSE);
-        m2.setDirection(DcMotor.Direction.REVERSE);
-        m1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m4.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    public void runOpMode() {
+
+        //Define those motors and stuff
+        //The string should be the name on the Driver Hub
+        m1 = (DcMotorEx) hardwareMap.dcMotor.get(DRIVE_PARAMS.leftFrontDriveName);
+        m2 = (DcMotorEx) hardwareMap.dcMotor.get(DRIVE_PARAMS.rightFrontDriveName);
+        m3 = (DcMotorEx) hardwareMap.dcMotor.get(DRIVE_PARAMS.leftBackDriveName);
+        m4 = (DcMotorEx) hardwareMap.dcMotor.get(DRIVE_PARAMS.rightBackDriveName);
+        Arm = (DcMotorEx) hardwareMap.dcMotor.get("arm");
+        Slide = (DcMotorEx) hardwareMap.dcMotor.get("slide");
+        Hanger = (DcMotorEx) hardwareMap.dcMotor.get("linearActuator");
+
+        Claw = (Servo) hardwareMap.servo.get("claw");
+
+        //Set them to the correct modes
+        //This reverses the motor direction
+        m1.setDirection(DRIVE_PARAMS.leftFrontDriveDirection);
+        m2.setDirection(DRIVE_PARAMS.rightFrontDriveDirection);
+        m3.setDirection(DRIVE_PARAMS.leftBackDriveDirection);
+        m4.setDirection(DRIVE_PARAMS.rightBackDriveDirection);
+
+        //Slide.setDirection(DcMotorSimple.Direction.REVERSE);
+        Hanger.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        //This resets the encoder values when the code is initialized
+        m1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        m2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        m3.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        m4.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
+        Hanger.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //This makes the wheels tense up and stay in position when it is not moving, opposite is FLOAT
+        m1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        m2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        m3.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        m4.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        Arm.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        Slide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        Hanger.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        //This lets you look at encoder values while the OpMode is active
+        //If you have a STOP_AND_RESET_ENCODER, make sure to put this below it
         m1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         m2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         m3.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         m4.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //STEVE - Renamed from 'arm' to 'Arm' for Penguins
-        Arm = (DcMotorEx)hardwareMap.dcMotor.get("arm_motor");
-        Arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Hanger.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-        //GyroSensor gyro = hardwareMap.gyroSensor.get("gyro_sensor");
-        BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        //STEVE - Renamed from 'handServo' to 'Claw'
-        Claw = hardwareMap.servo.get("claw");
-
-
-        DistanceSensor frontDistance = hardwareMap.get(DistanceSensor.class, "front_distance");
-        DistanceSensor leftDistance = hardwareMap.get(DistanceSensor.class, "left_distance");
-        DistanceSensor rightDistance = hardwareMap.get(DistanceSensor.class, "right_distance");
-        DistanceSensor backDistance = hardwareMap.get(DistanceSensor.class, "back_distance");
-        //gyro.init();
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.accelerationIntegrationAlgorithm = null;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.calibrationData = null;
-        parameters.calibrationDataFile = "";
-        parameters.loggingEnabled = false;
-        parameters.loggingTag = "Who cares.";
-
-        imu.initialize(parameters);
-
-        ColorSensor colorSensor = hardwareMap.colorSensor.get("color_sensor");
-        telemetry.addData("Press Start When Ready","");
-        telemetry.update();
 
         waitForStart();
 
-        //START PENGUINS CODE:
         while(opModeIsActive()) {
             // Mecanum drive code
             double px = 0.0;
@@ -140,7 +165,42 @@ public class ArmBotDemoPenguins extends LinearOpMode {
 
 
 
-            //STEVE - Remove slide and hanger code for now
+            // Slide Code
+            if (gamepad1.left_bumper) {
+                // Slide Out, if the limit will not be passed
+                if (getNewRobotLength(5,0)) {
+                    Slide.setPower(1);
+                }
+            } else if (gamepad1.left_trigger > 0) {
+                // Slide In
+                // I don't think a limit check is ever necessary here, but just in case...
+                if (getNewRobotLength(-5,0)) {
+                    Slide.setPower(-1);
+                }
+            } else {
+                // At Rest
+                Slide.setPower(0);
+            }
+
+
+
+            // Hanging Arm Code
+            if (gamepad2.left_bumper) {
+                // Actuator Out
+                Hanger.setPower(1);
+            } else {
+                /* Add:
+                   Hanger.getCurrentPosition() < -500 ||
+                   to make the arm auto retract
+                 */
+                if (gamepad2.left_trigger > 0) {
+                    // Retract if out
+                    Hanger.setPower(-1);
+                } else {
+                    // Stop if fully back
+                    Hanger.setPower(0);
+                }
+            }
 
             // Claw Code
             if (gamepad1.y) {
@@ -152,14 +212,14 @@ public class ArmBotDemoPenguins extends LinearOpMode {
             }
 
 
-            //STEVE - Removed Pinpoint code
-
             //if (gamepad1.a) {
                 // Encoder telemetry
                 telemetry.addData("Arm Pos", Arm.getCurrentPosition());
+                telemetry.addData("Slide Pos", Slide.getCurrentPosition());
+                telemetry.addData("Arm Power", Arm.getPower());
+                telemetry.addData("Slide Power", Slide.getPower());
 
-                //STEVE - Comment out Slide
-                //telemetry.addData("Slide Pos", Slide.getCurrentPosition());
+                telemetry.addData("Can Move", getNewRobotLength(-5,0));
             //}
 
             telemetry.update();
@@ -169,8 +229,7 @@ public class ArmBotDemoPenguins extends LinearOpMode {
 
     // Method to check whether the robot will still be within size constraints after the desired movements
     public boolean getNewRobotLength(int deltaLength, int deltaAngle) {
-        //STEVE - Change to 1 for now
-        slideLength = (int) 1; //(Slide.getCurrentPosition() * inPerSlideTick);
+        slideLength = (int) (Slide.getCurrentPosition() * inPerSlideTick);
         slideLength += deltaLength;
 
         armAngle = (int) (Arm.getCurrentPosition() * degreePerArmTick);
@@ -181,4 +240,4 @@ public class ArmBotDemoPenguins extends LinearOpMode {
     }
 
 
-}
+} // end class
