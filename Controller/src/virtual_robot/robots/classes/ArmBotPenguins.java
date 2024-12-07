@@ -78,6 +78,7 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     @FXML private Group rightFingerGroup;
     @FXML private Rectangle rightProximalPhalanx;
     @FXML private Rectangle rightDistalPhalanx;
+    @FXML private Group armSideGroup;
 
     /*
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
