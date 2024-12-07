@@ -17,6 +17,7 @@ import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import virtual_robot.controller.BotConfig;
 import virtual_robot.controller.Filters;
@@ -84,10 +85,13 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     Translate leftFingerTranslateTransform;
     Translate rightFingerTranslateTransform;
 
+    Rotate armRotate;
+
     /*
      * Current Y-translation of the arm, in pixels. 0 means fully retracted. 50 means fully extended.
      */
     private double slideTranslation = 0;
+    private double armTranslation = 0;
 
     /*
      * Current X-translation of the fingers, in pixels. 0 means fully open.
@@ -147,6 +151,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
+        armRotate = new Rotate(0, halfBotWidth, halfBotWidth*2);
+        armGroup.getTransforms().add(armRotate);
 
         slideTranslateTransform = new Translate(0, 0);
         //slideGroup.getTransforms().add(slideTranslateTransform);
@@ -160,10 +166,11 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         leftFingerTranslateTransform = new Translate(0, 0);
         leftFingerGroup.getTransforms().add(leftFingerTranslateTransform);
+        leftFingerGroup.getTransforms().add(armRotate);
 
         rightFingerTranslateTransform = new Translate(0, 0);
         rightFingerGroup.getTransforms().add(rightFingerTranslateTransform);
-
+        rightFingerGroup.getTransforms().add(armRotate);
         /*
          * Create the dyn4j Body for the arm; it will have two BodyFixtures, one corresponding to the "arm" javafx ,
          * Shape, and the other to the "hand" shape. Each of those will be created using a different FixtureData, to allow the
@@ -238,8 +245,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         armSlide.setPosition(slideTranslation);
 
         armMotor.update(millis);
-        //armTranslation = armMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
-        //armAngle.setPosition(slideTranslation);
+        armTranslation = armMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
+        armRotate.setAngle(armTranslation);
+        armRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
 
         hangerMotor.update(millis);
         //hangerTranslation = hangerMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
@@ -269,9 +277,10 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
 
         // Extend or retract the arm based on the value of armScale.
 
-        armTranslateTransform.setY(-slideTranslation);
-        leftFingerTranslateTransform.setY(-slideTranslation);
-        rightFingerTranslateTransform.setY(-slideTranslation);
+        armTranslateTransform.setY(-(slideTranslation/2));
+        arm.setHeight(57.5+(slideTranslation/2));
+        leftFingerTranslateTransform.setY(-(slideTranslation/2));
+        rightFingerTranslateTransform.setY(-(slideTranslation/2));
 
         // Mover fingers in the X-direction (i.e., open/close fingers) based on position of the handServo.
 
