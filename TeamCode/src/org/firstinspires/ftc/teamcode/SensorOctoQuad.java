@@ -59,6 +59,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  *
  * See the sensor's product page: https://www.tindie.com/products/digitalchickenlabs/octoquad-8ch-quadrature-pulse-width-decoder/
  */
+@Disabled
 @TeleOp(name = "OctoQuad Basic", group="OctoQuad")
 //@Disabled
 public class SensorOctoQuad extends LinearOpMode {
