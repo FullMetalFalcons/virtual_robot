@@ -15,7 +15,7 @@
 <!--The root node is a Group object; this object has a stack of multiple children.  Tne
     fx:controller attribute indicates that ArmBot is the controller class-->
 
-<Group xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" >
+<Group xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="virtual_robot.robots.classes.ArmBotPenguinsProfileView">
     <children>
         <!--The lowest child objecet is a yellow rectangle measuring 75x75-->
         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="YELLOW" height="75.0" stroke="BLACK" strokeType="INSIDE" width="75.0" />
@@ -25,12 +25,12 @@
         <Circle centerX="5.0" centerY="70.0" radius="10.0" strokeType="INSIDE" fill="BLUE" strokeWidth="0.0" />
         <Circle centerX="70.0" centerY="70.0" radius="10.0" strokeType="INSIDE" fill="BLUE" strokeWidth="0.0" />
 
-        <Group fx:id="armSideGroup">
+        <Group fx:id="armProfileGroup">
             <children>
 
                 <!-- The arm: note the fx:id attribute. This will instantiate a variable named "arm" in the ArmBot class. That
                      variable is of type Rectangle and is annotated with @FXML-->
-                <Rectangle fx:id="armSide" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="75" x="0" y="35" />
+                <Rectangle fx:id="armProfileArm" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="75" x="0" y="35" />
 
             </children>
         </Group>

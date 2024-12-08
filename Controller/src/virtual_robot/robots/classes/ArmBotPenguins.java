@@ -228,11 +228,13 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     /**
      * Setup the static side view of the bot that shows just the arm position
      */
-    protected Group setupStaticSideBotView(){
+    protected ArmBotPenguinsProfileView setupStaticSideBotView(){
         final String sideViewFilename = "/virtual_robot/robots/fxml/arm_bot_side_view.fxml";
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(sideViewFilename));
             Group sideViewGroup = (Group) loader.load();
+            ArmBotPenguinsProfileView profileBot = (ArmBotPenguinsProfileView) loader.getController();
+            //profileBot.moveArmAngle();
 
             // This moves the sideways bot just to the top left of the field
             sideViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));
@@ -241,19 +243,11 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
              * The following transforms will be appled in the reverse order to that in which they are added
              */
 
-            // This will be used to extend the arm
-            sideArmTranslate = new Translate(0, 0);
-            //armSideGroup.getTransforms().add(sideArmTranslate);
-
-            // This will be used to display the bot at the correct heading
-            sideArmRotate = new Rotate(0, halfBotWidth, halfBotWidth);
-            //armSideGroup.getTransforms().add(sideArmRotate);
-
             // This will adjust the bot to the correct size, based on size of the field display
             sideViewGroup.getTransforms().add(new Scale(botWidth/75, botWidth/75, 0, 0));
 
             fieldPane.getChildren().add(sideViewGroup);
-            return sideViewGroup;
+            return profileBot;
         } catch (Exception e){
             System.out.println("Unable to load " + sideViewFilename + " configuration.");
             System.out.println(e.getMessage());
