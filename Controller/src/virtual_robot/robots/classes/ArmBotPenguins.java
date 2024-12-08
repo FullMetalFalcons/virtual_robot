@@ -76,8 +76,10 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     @FXML private Group rightFingerGroup;
     @FXML private Rectangle rightProximalPhalanx;
     @FXML private Rectangle rightDistalPhalanx;
-    @FXML private Group armSideGroup;
 
+    /*
+     * This is the profile view of the robot that shows the arm angle
+     */
     ArmBotPenguinsProfileView profileViewBot;
 
     /*
@@ -104,7 +106,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     final double MAX_ARM_TICKS = MAX_ARM_DEGREES/DEGREES_PER_ARM_TICK;
 
     /*
-     * Current Y-translation of the arm, in pixels. 0 means fully retracted. 50 means fully extended.
+     * Current length of the arm slide beyond it's initial length.
+     * 0 means not extended
      */
     private double slideTranslationAddtlPixels = 0;
 
@@ -240,7 +243,6 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(profileViewFilename));
             Group profileViewGroup = (Group) loader.load();
             ArmBotPenguinsProfileView profileBot = (ArmBotPenguinsProfileView) loader.getController();
-            //profileBot.moveArmAngle();
 
             // This moves the profile view just to the top left of the field
             profileViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));
