@@ -91,11 +91,6 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     Translate rightFingerTranslateTransform;
     Translate sideArmTranslate;
 
-    Rotate armRotate;
-    Rotate rightFingerRotate;
-    Rotate leftFingerRotate;
-    Rotate sideArmRotate;
-
     double initialArmHeight;
 
     //Constants from the Penguins bot
@@ -176,12 +171,7 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
-        armRotate = new Rotate(0, halfBotWidth, halfBotWidth*2);
         initialArmHeight = arm.getHeight();
-
-        rightFingerRotate = new Rotate(0, halfBotWidth+(45/2), halfBotWidth*2);
-        leftFingerRotate = new Rotate(0, halfBotWidth-(45/2), halfBotWidth*2);
-        armGroup.getTransforms().add(armRotate);
 
         slideTranslateTransform = new Translate(0, 0);
         //slideGroup.getTransforms().add(slideTranslateTransform);
@@ -195,11 +185,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         leftFingerTranslateTransform = new Translate(0, 0);
         leftFingerGroup.getTransforms().add(leftFingerTranslateTransform);
-        leftFingerGroup.getTransforms().add(leftFingerRotate);
 
         rightFingerTranslateTransform = new Translate(0, 0);
         rightFingerGroup.getTransforms().add(rightFingerTranslateTransform);
-        rightFingerGroup.getTransforms().add(rightFingerRotate);
         /*
          * Create the dyn4j Body for the arm; it will have two BodyFixtures, one corresponding to the "arm" javafx ,
          * Shape, and the other to the "hand" shape. Each of those will be created using a different FixtureData, to allow the
@@ -310,17 +298,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
 
         armMotor.update(millis);
         armAngleDegrees = armMotor.getActualPosition() * DEGREES_PER_ARM_TICK;
-        //armRotate.setAngle(armAngleDegrees);
-        //leftFingerRotate.setAngle(armAngleDegrees);
-        //rightFingerRotate.setAngle(armAngleDegrees);
-        //armRotate.setPivotY((halfBotWidth*2)+(slideTranslationAddtlPixels /2));
-        //leftFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslationAddtlPixels /2));
-        //rightFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslationAddtlPixels /2));
-
 
         hangerMotor.update(millis);
-        //hangerTranslation = hangerMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
-        //hangerAngle.setPosition(hangerTranslation);
 
         /*
          * Update the value of fingerPos, using the current position of the hand servo. Then set the position
