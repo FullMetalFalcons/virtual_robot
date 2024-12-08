@@ -294,7 +294,6 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         slideMotor.update(millis);
         slideTranslationAddtlPixels = slideMotor.getActualPosition() * INCHES_PER_SLIDE_TICK
                   * VirtualField.conversionFactor(VirtualField.Unit.INCH,VirtualField.Unit.PIXEL) ;
-        //armSlide.setPosition(slideTranslationAddtlPixels);
 
         armMotor.update(millis);
         armAngleDegrees = armMotor.getActualPosition() * DEGREES_PER_ARM_TICK;
