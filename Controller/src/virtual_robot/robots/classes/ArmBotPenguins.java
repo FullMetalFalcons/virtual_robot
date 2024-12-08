@@ -91,7 +91,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     Translate hangerTranslateTransform;
     Translate leftFingerTranslateTransform;
     Translate rightFingerTranslateTransform;
-    Translate sideArmTranslate;
+    Scale leftFingerScaleTransform;
+    Scale rightFingerScaleTransform;
 
     double initialArmHeight;
 
@@ -188,9 +189,13 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         leftFingerTranslateTransform = new Translate(0, 0);
         leftFingerGroup.getTransforms().add(leftFingerTranslateTransform);
+        leftFingerScaleTransform = new Scale(1,1,0,leftProximalPhalanx.getHeight());
+        leftFingerGroup.getTransforms().add(leftFingerScaleTransform);
 
         rightFingerTranslateTransform = new Translate(0, 0);
         rightFingerGroup.getTransforms().add(rightFingerTranslateTransform);
+        rightFingerScaleTransform = new Scale(1,1,0,rightProximalPhalanx.getHeight());
+        rightFingerGroup.getTransforms().add(rightFingerScaleTransform);
         /*
          * Create the dyn4j Body for the arm; it will have two BodyFixtures, one corresponding to the "arm" javafx ,
          * Shape, and the other to the "hand" shape. Each of those will be created using a different FixtureData, to allow the
@@ -334,7 +339,9 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         //  the pivot stays at the same spot on the bottom of the robot
         armTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
         leftFingerTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
+        leftFingerScaleTransform.setY(Math.cos(Math.toRadians(armAngleDegrees)));
         rightFingerTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
+        rightFingerScaleTransform.setY(Math.cos(Math.toRadians(armAngleDegrees)));
 
         // Mover fingers in the X-direction (i.e., open/close fingers) based on position of the handServo.
 
