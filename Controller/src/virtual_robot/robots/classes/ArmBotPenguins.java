@@ -10,7 +10,6 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Transform;
 import org.dyn4j.geometry.Vector2;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 
 import javafx.fxml.FXML;
@@ -24,7 +23,6 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import virtual_robot.controller.BotConfig;
 import virtual_robot.controller.Filters;
-import virtual_robot.controller.VirtualBot;
 import virtual_robot.controller.VirtualField;
 import virtual_robot.dyn4j.Dyn4jUtil;
 import virtual_robot.dyn4j.FixtureData;
@@ -80,6 +78,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     @FXML private Rectangle rightDistalPhalanx;
     @FXML private Group armSideGroup;
 
+    ArmBotPenguinsProfileView profileViewBot;
+
     /*
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
      * updateDisplay() method to manipulate the arm, hand, and fingers.
@@ -96,11 +96,27 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     Rotate leftFingerRotate;
     Rotate sideArmRotate;
 
+    double initialArmHeight;
+
+    //Constants from the Penguins bot
+    final double INCHES_PER_SLIDE_TICK = 0.00830154812;
+    final double DEGREES_PER_ARM_TICK = 0.018326206475;
+
+    final double MAX_SLIDE_EXTENSION_INCHES = 42-18;  //42" max width minus 18" robot
+    final double MAX_SLIDE_EXTENSION_TICKS = MAX_SLIDE_EXTENSION_INCHES/INCHES_PER_SLIDE_TICK;
+
+    final double MAX_ARM_DEGREES = 90;
+    final double MAX_ARM_TICKS = MAX_ARM_DEGREES/DEGREES_PER_ARM_TICK;
+
     /*
      * Current Y-translation of the arm, in pixels. 0 means fully retracted. 50 means fully extended.
      */
-    private double slideTranslation = 0;
-    private double armTranslation = 0;
+    private double slideTranslationAddtlPixels = 0;
+
+    /*
+    * Current angle of the arm in degrees.  0 is parallel with ground, 90 is straight up
+     */
+    private double armAngleDegrees = 0;
 
     /*
      * Current X-translation of the fingers, in pixels. 0 means fully open.
@@ -138,11 +154,11 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         hardwareMap.setActive(true);
 
         slideMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "slide");
-        slideMotor.setActualPositionLimits(0, 2240);
+        slideMotor.setActualPositionLimits(0, MAX_SLIDE_EXTENSION_TICKS);
         slideMotor.setPositionLimitsEnabled(true);
 
         armMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "arm");
-        armMotor.setActualPositionLimits(0, 2240);
+        armMotor.setActualPositionLimits(0, MAX_ARM_TICKS);
         armMotor.setPositionLimitsEnabled(true);
 
         hangerMotor = (DcMotorExImpl)hardwareMap.get(DcMotorEx.class, "linearActuator");
@@ -161,6 +177,8 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
         armRotate = new Rotate(0, halfBotWidth, halfBotWidth*2);
+        initialArmHeight = arm.getHeight();
+
         rightFingerRotate = new Rotate(0, halfBotWidth+(45/2), halfBotWidth*2);
         leftFingerRotate = new Rotate(0, halfBotWidth-(45/2), halfBotWidth*2);
         armGroup.getTransforms().add(armRotate);
@@ -222,34 +240,34 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
                 VirtualField.Unit.PIXEL);
         world.addJoint(rightFingerSlide);
 
-        setupStaticSideBotView();
+        profileViewBot = setupStaticProfileBotView();
     }
 
     /**
      * Setup the static side view of the bot that shows just the arm position
      */
-    protected ArmBotPenguinsProfileView setupStaticSideBotView(){
-        final String sideViewFilename = "/virtual_robot/robots/fxml/arm_bot_side_view.fxml";
+    protected ArmBotPenguinsProfileView setupStaticProfileBotView(){
+        final String profileViewFilename = "/virtual_robot/robots/fxml/arm_bot_side_view.fxml";
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(sideViewFilename));
-            Group sideViewGroup = (Group) loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(profileViewFilename));
+            Group profileViewGroup = (Group) loader.load();
             ArmBotPenguinsProfileView profileBot = (ArmBotPenguinsProfileView) loader.getController();
             //profileBot.moveArmAngle();
 
-            // This moves the sideways bot just to the top left of the field
-            sideViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));
+            // This moves the profile view just to the top left of the field
+            profileViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));
 
             /*
              * The following transforms will be appled in the reverse order to that in which they are added
              */
 
             // This will adjust the bot to the correct size, based on size of the field display
-            sideViewGroup.getTransforms().add(new Scale(botWidth/75, botWidth/75, 0, 0));
+            profileViewGroup.getTransforms().add(new Scale(botWidth/75, botWidth/75, 0, 0));
 
-            fieldPane.getChildren().add(sideViewGroup);
+            fieldPane.getChildren().add(profileViewGroup);
             return profileBot;
         } catch (Exception e){
-            System.out.println("Unable to load " + sideViewFilename + " configuration.");
+            System.out.println("Unable to load " + profileViewFilename + " configuration.");
             System.out.println(e.getMessage());
             e.printStackTrace();
             return null;
@@ -278,6 +296,7 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     public synchronized void updateStateAndSensors(double millis){
         super.updateStateAndSensors(millis);    // Handles update for drivetrain and standard sensors.
 
+
         /*
          * Update the arm motor and calculate the new value of armTranslation (in pixels). Then, set the position
          * of the arm slide object to armTranslation, in pixels. This positions the arm in the dyn4j physics engine.
@@ -285,17 +304,18 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          * new value of armTranslation.
          */
         slideMotor.update(millis);
-        slideTranslation = slideMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
-        armSlide.setPosition(slideTranslation);
+        slideTranslationAddtlPixels = slideMotor.getActualPosition() * INCHES_PER_SLIDE_TICK
+                  * VirtualField.conversionFactor(VirtualField.Unit.INCH,VirtualField.Unit.PIXEL) ;
+        //armSlide.setPosition(slideTranslationAddtlPixels);
 
         armMotor.update(millis);
-        armTranslation = armMotor.getActualPosition() * 50.0 / 2240.0 * (botWidth / 75.0);
-        armRotate.setAngle(armTranslation);
-        leftFingerRotate.setAngle(armTranslation);
-        rightFingerRotate.setAngle(armTranslation);
-        armRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
-        leftFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
-        rightFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslation/2));
+        armAngleDegrees = armMotor.getActualPosition() * DEGREES_PER_ARM_TICK;
+        //armRotate.setAngle(armAngleDegrees);
+        //leftFingerRotate.setAngle(armAngleDegrees);
+        //rightFingerRotate.setAngle(armAngleDegrees);
+        //armRotate.setPivotY((halfBotWidth*2)+(slideTranslationAddtlPixels /2));
+        //leftFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslationAddtlPixels /2));
+        //rightFingerRotate.setPivotY((halfBotWidth*2)+(slideTranslationAddtlPixels /2));
 
 
         hangerMotor.update(millis);
@@ -324,12 +344,17 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
          */
         super.updateDisplay();
 
+        //When viewed from above, the arm gets shorter as the arm angle increases
+        double armHeightFromAbovePixels = (initialArmHeight + slideTranslationAddtlPixels)
+                  * Math.cos(Math.toRadians(armAngleDegrees));
         // Extend or retract the arm based on the value of armScale.
+        arm.setHeight(armHeightFromAbovePixels);
 
-        armTranslateTransform.setY(-(slideTranslation/2));
-        arm.setHeight(57.5+(slideTranslation/2));
-        leftFingerTranslateTransform.setY(-(slideTranslation/2));
-        rightFingerTranslateTransform.setY(-(slideTranslation/2));
+        //The arm height grows toward positive Y, so move the arm back that distance so
+        //  the pivot stays at the same spot on the bottom of the robot
+        armTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
+        leftFingerTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
+        rightFingerTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
 
         // Mover fingers in the X-direction (i.e., open/close fingers) based on position of the handServo.
 
@@ -338,6 +363,7 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
             rightFingerTranslateTransform.setX(-fingerPos);
         }
 
+        profileViewBot.updateDisplay(slideTranslationAddtlPixels,armAngleDegrees);
 
     }
 

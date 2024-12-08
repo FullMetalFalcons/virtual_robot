@@ -1,8 +1,5 @@
 package virtual_robot.robots.classes;
 
-import com.qualcomm.robotcore.hardware.DcMotorExImpl;
-import com.qualcomm.robotcore.hardware.ServoImpl;
-
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.shape.Rectangle;
@@ -41,14 +38,11 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
      * updateDisplay() method to manipulate the arm, hand, and fingers.
      */
-    Translate profileArmTranslate;
-    Rotate profileArmRotate;
+    private Translate profileArmTranslate;
+    private Rotate profileArmRotate;
 
-    /*
-     * Current Y-translation of the arm, in pixels. 0 means fully retracted. 50 means fully extended.
-     */
-    private double slideTranslation = 0;
-    private double armTranslation = 0;
+    private double initialArmWidthPx;
+    private double initialArmHeightPx;
 
     /**
      * Constructor.
@@ -62,6 +56,9 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
      *  as the robot operates
      */
     public void initialize(){
+        initialArmWidthPx = armProfileArm.getWidth();
+        initialArmHeightPx = armProfileArm.getHeight();
+
         // This will be used to extend the arm
         profileArmTranslate = new Translate(0, 0);
         armProfileGroup.getTransforms().add(profileArmTranslate);
@@ -70,7 +67,7 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
         // The initial pivot point is the top left of the mini-robot so move
         //    the pivot down to match how far down the arm was originally placed
         //    minus half the height
-        profileArmRotate = new Rotate(-45, 0, armProfileArm.getY()-(armProfileArm.getHeight()/2));
+        profileArmRotate = new Rotate(0, 0, armProfileArm.getY()-(initialArmHeightPx /2));
         armProfileGroup.getTransforms().add(profileArmRotate);
 
     }
@@ -78,8 +75,13 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
      *  Update the display of the robot UI. This method will be called from the UI Thread via a call to
      *  Platform.runLater().
      */
-    public synchronized void updateDisplay(double armLenghtPixels, double armAngleDegrees){
+    public synchronized void updateDisplay(double armAddtlLengthPixels, double armAngleDegrees){
+        //Negative degrees moves the right edge of the arm up
+        profileArmRotate.setAngle(-armAngleDegrees);
 
+        //To extend, we need to make the arm longer, but we also have to shift the
+        //  arm over so the pivot stays at the same spot on the left edge
+        armProfileArm.setWidth(initialArmWidthPx + armAddtlLengthPixels);
     }
 
 
