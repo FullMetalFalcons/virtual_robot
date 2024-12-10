@@ -33,16 +33,19 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
      */
     @FXML private Group armProfileGroup;
     @FXML private Rectangle armProfileArm;
+    @FXML private Rectangle armProfileSlide;
+    @FXML private Rectangle armProfileSlideClaw;
 
     /*
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
      * updateDisplay() method to manipulate the arm, hand, and fingers.
      */
-    private Translate profileArmTranslate;
+    private Translate profileArmClawTranslate;
     private Rotate profileArmRotate;
 
     private double initialArmWidthPx;
     private double initialArmHeightPx;
+    private double initialArmClawOffsetPx;
 
     /**
      * Constructor.
@@ -58,10 +61,12 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
     public void initialize(){
         initialArmWidthPx = armProfileArm.getWidth();
         initialArmHeightPx = armProfileArm.getHeight();
+        initialArmClawOffsetPx = armProfileSlideClaw.getX();
 
-        // This will be used to extend the arm
-        profileArmTranslate = new Translate(0, 0);
-        armProfileGroup.getTransforms().add(profileArmTranslate);
+        // This will be used to move the claw as the arm extends
+        //   as the arm it self's width changes as the arm extends
+        profileArmClawTranslate = new Translate(0, 0);
+        armProfileSlideClaw.getTransforms().add(profileArmClawTranslate);
 
         // This will be used to display the arm at the correct angle
         // The initial pivot point is the top left of the mini-robot so move
@@ -82,6 +87,8 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
         //To extend, we need to make the arm longer, but we also have to shift the
         //  arm over so the pivot stays at the same spot on the left edge
         armProfileArm.setWidth(initialArmWidthPx + armAddtlLengthPixels);
+        armProfileSlide.setWidth(initialArmWidthPx + armAddtlLengthPixels);
+        profileArmClawTranslate.setX(armAddtlLengthPixels);
     }
 
 

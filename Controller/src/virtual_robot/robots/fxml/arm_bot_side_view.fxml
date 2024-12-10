@@ -31,6 +31,8 @@
                 <!-- The arm: note the fx:id attribute. This will instantiate a variable named "arm" in the ArmBot class. That
                      variable is of type Rectangle and is annotated with @FXML-->
                 <Rectangle fx:id="armProfileArm" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="75" x="0" y="35" />
+                <Rectangle fx:id="armProfileSlide" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="75" x="0" y="50" />
+                <Rectangle fx:id="armProfileSlideClaw" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="40.0" stroke="BLACK" strokeType="INSIDE" width="5.0" x="70" y="50" />
 
             </children>
         </Group>
