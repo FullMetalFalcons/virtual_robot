@@ -42,8 +42,8 @@ import virtual_robot.game_elements.classes.WobbleGoal;
  * combo box. The filename refers to the fxml file that contains the markup for the graphical UI.
  * Note: the fxml file must be located in the virtual_robot.robots.classes.fxml folder.
  */
-@BotConfig(name = "Xavier Penguins 2024", filename = "xavier_2024_penguins_bot")
-public class Xavier2024Penguins extends MecanumPhysicsBase {
+@BotConfig(name = "Xavier Penguins 2024 Bot", filename = "xavier_2024_penguins_bot")
+public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
 
     /*
     The DC Motors.  Note use of the DcMotorImpl class rather than the DcMotor interface. That allows use of
@@ -79,7 +79,7 @@ public class Xavier2024Penguins extends MecanumPhysicsBase {
     /*
      * This is the profile view of the robot that shows the arm angle
      */
-    Xavier2024PenguinsProfileView profileViewBot;
+    Xavier2024PenguinsProfileViewBot profileViewBot;
 
     /*
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
@@ -133,7 +133,7 @@ public class Xavier2024Penguins extends MecanumPhysicsBase {
     /**
      * Constructor.
      */
-    public Xavier2024Penguins() {
+    public Xavier2024PenguinsBot() {
         super();
     }
 
@@ -241,12 +241,12 @@ public class Xavier2024Penguins extends MecanumPhysicsBase {
     /**
      * Setup the static side view of the bot that shows just the arm position
      */
-    protected Xavier2024PenguinsProfileView setupStaticProfileBotView(){
+    protected Xavier2024PenguinsProfileViewBot setupStaticProfileBotView(){
         final String profileViewFilename = "/virtual_robot/robots/fxml/xavier_2024_penguins_profile_view_bot.fxml";
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(profileViewFilename));
             Group profileViewGroup = (Group) loader.load();
-            Xavier2024PenguinsProfileView profileBot = (Xavier2024PenguinsProfileView) loader.getController();
+            Xavier2024PenguinsProfileViewBot profileBot = (Xavier2024PenguinsProfileViewBot) loader.getController();
 
             // This moves the profile view just to the top left of the field
             profileViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));

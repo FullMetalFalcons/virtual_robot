@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Example OpMode. Demonstrates use of gyro, color sensor, encoders, and telemetry.
  *
  */
-@TeleOp(name = "Xavier Penguins 2024", group = "Xavier")
+@TeleOp(name = "Xavier Penguins 2024 OpMode", group = "Xavier")
 public class Xavier2024PenguinsOpMode extends LinearOpMode {
     public static class PARAMS {
         // drive motor setup
