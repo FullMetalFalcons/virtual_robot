@@ -103,6 +103,7 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
     final double MAX_SLIDE_EXTENSION_INCHES = 52-18;  //52" is full physical extension minus bot width
     final double MAX_SLIDE_EXTENSION_TICKS = MAX_SLIDE_EXTENSION_INCHES/INCHES_PER_SLIDE_TICK;
 
+    final double INITIAL_ARM_DEGREES = 10;
     final double MAX_ARM_DEGREES = 90;
     final double MAX_ARM_TICKS = MAX_ARM_DEGREES/DEGREES_PER_ARM_TICK;
 
@@ -305,7 +306,7 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
                   * VirtualField.conversionFactor(VirtualField.Unit.INCH,VirtualField.Unit.PIXEL) ;
 
         armMotor.update(millis);
-        armAngleDegrees = armMotor.getActualPosition() * DEGREES_PER_ARM_TICK;
+        armAngleDegrees = INITIAL_ARM_DEGREES + (armMotor.getActualPosition() * DEGREES_PER_ARM_TICK);
 
         hangerMotor.update(millis);
 

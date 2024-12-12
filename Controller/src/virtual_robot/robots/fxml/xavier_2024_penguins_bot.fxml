@@ -69,7 +69,7 @@
       <Group fx:id="armGroup">
          <children>
              <!--  NOTE: Rectangles X,Y positions are measured from the TOP LEFT corner of the rectangle -->
-      
+
               <!-- The ARM: note the fx:id attribute. This will instantiate a variable named "arm" in the ArmBot class. That
                    variable is of type Rectangle and is annotated with @FXML-->
               <Rectangle fx:id="arm" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="75.0" stroke="BLACK" strokeType="INSIDE" width="5.0" x="35.0" y="0" />
