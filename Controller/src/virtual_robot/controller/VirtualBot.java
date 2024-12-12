@@ -50,6 +50,8 @@ public abstract class VirtualBot {
 
     protected DcMotorControllerImpl motorController0 = new DcMotorControllerImpl();
     protected DcMotorControllerImpl motorController1 = new DcMotorControllerImpl();
+    protected DcMotorControllerImpl motorController2 = new DcMotorControllerImpl();
+    protected DcMotorControllerImpl motorController3 = new DcMotorControllerImpl();
 
     protected Group displayGroup = null;
 
