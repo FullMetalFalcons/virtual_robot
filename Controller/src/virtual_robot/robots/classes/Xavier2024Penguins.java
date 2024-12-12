@@ -18,7 +18,6 @@ import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import virtual_robot.controller.BotConfig;
@@ -43,8 +42,8 @@ import virtual_robot.game_elements.classes.WobbleGoal;
  * combo box. The filename refers to the fxml file that contains the markup for the graphical UI.
  * Note: the fxml file must be located in the virtual_robot.robots.classes.fxml folder.
  */
-@BotConfig(name = "Arm Bot Penguins", filename = "arm_bot_penguins")
-public class ArmBotPenguins extends MecanumPhysicsBase {
+@BotConfig(name = "Xavier Penguins 2024", filename = "xavier_2024_penguins_bot")
+public class Xavier2024Penguins extends MecanumPhysicsBase {
 
     /*
     The DC Motors.  Note use of the DcMotorImpl class rather than the DcMotor interface. That allows use of
@@ -80,7 +79,7 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     /*
      * This is the profile view of the robot that shows the arm angle
      */
-    ArmBotPenguinsProfileView profileViewBot;
+    Xavier2024PenguinsProfileView profileViewBot;
 
     /*
      * Transform objects that will be instantiated in the initialize() method, and will be used in the
@@ -134,7 +133,7 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     /**
      * Constructor.
      */
-    public ArmBotPenguins() {
+    public Xavier2024Penguins() {
         super();
     }
 
@@ -242,12 +241,12 @@ public class ArmBotPenguins extends MecanumPhysicsBase {
     /**
      * Setup the static side view of the bot that shows just the arm position
      */
-    protected ArmBotPenguinsProfileView setupStaticProfileBotView(){
-        final String profileViewFilename = "/virtual_robot/robots/fxml/arm_bot_side_view.fxml";
+    protected Xavier2024PenguinsProfileView setupStaticProfileBotView(){
+        final String profileViewFilename = "/virtual_robot/robots/fxml/xavier_2024_penguins_profile_view_bot.fxml";
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(profileViewFilename));
             Group profileViewGroup = (Group) loader.load();
-            ArmBotPenguinsProfileView profileBot = (ArmBotPenguinsProfileView) loader.getController();
+            Xavier2024PenguinsProfileView profileBot = (Xavier2024PenguinsProfileView) loader.getController();
 
             // This moves the profile view just to the top left of the field
             profileViewGroup.getTransforms().add(new Translate(-(1.75*botWidth) ,botWidth));

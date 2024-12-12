@@ -22,7 +22,7 @@ import java.util.Locale;
  * Example OpMode. Demonstrates use of gyro, color sensor, encoders, and telemetry.
  *
  */
-@TeleOp(name = "arm bot Penguins", group = "ArmBotPenguins")
+@TeleOp(name = "Xavier Penguins 2024", group = "Xavier")
 public class ArmBotDemoPenguins extends LinearOpMode {
     public static class PARAMS {
         // drive motor setup

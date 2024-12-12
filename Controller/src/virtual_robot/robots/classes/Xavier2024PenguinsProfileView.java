@@ -21,7 +21,7 @@ import javafx.scene.transform.Translate;
  * Note: the fxml file must be located in the virtual_robot.robots.classes.fxml folder.
  */
 //@BotConfig(name = "Arm Bot Penguins", filename = "arm_bot_penguins")
-public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
+public class Xavier2024PenguinsProfileView { //extends MecanumPhysicsBase {
 
     final double INITIAL_ARM_WIDTH = 75;
 
@@ -50,7 +50,7 @@ public class ArmBotPenguinsProfileView { //extends MecanumPhysicsBase {
     /**
      * Constructor.
      */
-    public ArmBotPenguinsProfileView() {
+    public Xavier2024PenguinsProfileView() {
     }
 
     /**
