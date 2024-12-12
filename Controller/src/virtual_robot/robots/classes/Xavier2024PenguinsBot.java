@@ -94,6 +94,7 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
     Scale rightFingerScaleTransform;
 
     double initialArmHeight;
+    double initialFingerHeight;
 
     //Constants from the Penguins bot
     final double INCHES_PER_SLIDE_TICK = 0.00830154812;
@@ -176,6 +177,7 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
         armTranslateTransform = new Translate(0, 0);
         armGroup.getTransforms().add(armTranslateTransform);
         initialArmHeight = arm.getHeight();
+        initialFingerHeight = leftProximalPhalanx.getHeight();
 
         slideTranslateTransform = new Translate(0, 0);
         //slideGroup.getTransforms().add(slideTranslateTransform);
@@ -189,12 +191,12 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
          */
         leftFingerTranslateTransform = new Translate(0, 0);
         leftFingerGroup.getTransforms().add(leftFingerTranslateTransform);
-        leftFingerScaleTransform = new Scale(1,1,0,leftProximalPhalanx.getHeight());
+        leftFingerScaleTransform = new Scale(1,1,0,0);
         leftFingerGroup.getTransforms().add(leftFingerScaleTransform);
 
         rightFingerTranslateTransform = new Translate(0, 0);
         rightFingerGroup.getTransforms().add(rightFingerTranslateTransform);
-        rightFingerScaleTransform = new Scale(1,1,0,rightProximalPhalanx.getHeight());
+        rightFingerScaleTransform = new Scale(1,1,0,0);
         rightFingerGroup.getTransforms().add(rightFingerScaleTransform);
         /*
          * Create the dyn4j Body for the arm; it will have two BodyFixtures, one corresponding to the "arm" javafx ,
@@ -330,6 +332,7 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
         super.updateDisplay();
 
         //When viewed from above, the arm gets shorter as the arm angle increases
+        // so use COS here
         double armHeightFromAbovePixels = (initialArmHeight + slideTranslationAddtlPixels)
                   * Math.cos(Math.toRadians(armAngleDegrees));
         // Extend or retract the arm based on the value of armScale.
@@ -338,10 +341,22 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
         //The arm height grows toward positive Y, so move the arm back that distance so
         //  the pivot stays at the same spot on the bottom of the robot
         armTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
-        leftFingerTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
-        leftFingerScaleTransform.setY(Math.cos(Math.toRadians(armAngleDegrees)));
-        rightFingerTranslateTransform.setY(initialArmHeight-armHeightFromAbovePixels);
-        rightFingerScaleTransform.setY(Math.cos(Math.toRadians(armAngleDegrees)));
+
+        //The fingers point down when the arm is down so, from above, they have
+        // no height initially and actually get longer as the arm angle goes up
+        //
+        //So use SIN here to calculate the % of total visible and scale it to match.
+        //Then move the Y position of the top left edge of the fingers to match the end of
+        // the arm but also move it up (minus Y) by the current amount of the finger visible
+        // which is SIN * the original height
+        leftFingerScaleTransform.setY(Math.sin(Math.toRadians(armAngleDegrees)));
+        leftFingerTranslateTransform.setY(initialArmHeight
+                                          -armHeightFromAbovePixels
+                                          -(initialFingerHeight*Math.sin(Math.toRadians(armAngleDegrees))));
+        rightFingerScaleTransform.setY(Math.sin(Math.toRadians(armAngleDegrees)));
+        rightFingerTranslateTransform.setY(initialArmHeight
+                                          -armHeightFromAbovePixels
+                                          -(initialFingerHeight*Math.sin(Math.toRadians(armAngleDegrees))));
 
         // Mover fingers in the X-direction (i.e., open/close fingers) based on position of the handServo.
 
