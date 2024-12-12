@@ -99,7 +99,7 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
     final double INCHES_PER_SLIDE_TICK = 0.00830154812;
     final double DEGREES_PER_ARM_TICK = 0.018326206475;
 
-    final double MAX_SLIDE_EXTENSION_INCHES = 42-18;  //42" max width minus 18" robot
+    final double MAX_SLIDE_EXTENSION_INCHES = 52-18;  //52" is full physical extension minus bot width
     final double MAX_SLIDE_EXTENSION_TICKS = MAX_SLIDE_EXTENSION_INCHES/INCHES_PER_SLIDE_TICK;
 
     final double MAX_ARM_DEGREES = 90;
