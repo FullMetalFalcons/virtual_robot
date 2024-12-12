@@ -18,6 +18,9 @@ import org.firstinspires.ftc.robotcore.external.matrices.GeneralMatrixF;
 import org.firstinspires.ftc.robotcore.external.matrices.MatrixF;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+import java.util.Objects;
+
 import virtual_robot.config.Config;
 import virtual_robot.controller.*;
 import virtual_robot.util.AngleUtils;
@@ -62,6 +65,14 @@ public abstract class MecanumPhysicsBase extends VirtualBot {
     MatrixF M_ForceRobotToWheel;  // Converts from total force/torque on robot to individual wheel forces
     protected float maxWheelXForce; // Need to assign this in the initialize method.
 
+    /*
+     * Having these as protected attributes allows a specific Bot to override them to use different names
+     */
+    protected String motorNameBackLeft = "back_left_motor";
+    protected String motorNameFrontLeft = "front_left_motor";
+    protected String motorNameFrontRight = "front_right_motor";
+    protected String motorNameBackRight = "back_right_motor";
+
     /**
      * No-param constructor. Uses the default motor type of Neverest 40
      */
@@ -75,14 +86,30 @@ public abstract class MecanumPhysicsBase extends VirtualBot {
         MOTOR_TYPE = driveMotorType;
     }
 
+    public MecanumPhysicsBase(MotorType driveMotorType,
+                              String backLeftMotorName, String frontLeftMotorName,
+                              String frontRightMotorName, String backRightMotorName){
+        super();
+
+        //Supporting nullable driveMotorType keeps from having too many different
+        //  constructor flavors
+        MOTOR_TYPE = Objects.requireNonNullElse(driveMotorType, MotorType.Neverest40);
+
+        //Support Bot implementations to override the drive motor names
+        motorNameBackLeft = backLeftMotorName;
+        motorNameFrontLeft = frontLeftMotorName;
+        motorNameFrontRight = frontRightMotorName;
+        motorNameBackRight = backRightMotorName;
+    }
+
     public void initialize(){
         super.initialize();
         hardwareMap.setActive(true);
         motors = new DcMotorExImpl[]{
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "back_left_motor"),
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "front_left_motor"),
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "front_right_motor"),
-                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "back_right_motor")
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, motorNameBackLeft),
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, motorNameFrontLeft),
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, motorNameFrontRight),
+                (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, motorNameBackRight)
         };
         distanceSensors = new VirtualRobotController.DistanceSensorImpl[]{
                 hardwareMap.get(VirtualRobotController.DistanceSensorImpl.class, "front_distance"),
@@ -149,7 +176,7 @@ public abstract class MecanumPhysicsBase extends VirtualBot {
      */
     protected void createHardwareMap() {
         hardwareMap = new HardwareMap();
-        String[] motorNames = new String[]{"back_left_motor", "front_left_motor", "front_right_motor", "back_right_motor"};
+        String[] motorNames = new String[]{motorNameBackLeft, motorNameFrontLeft, motorNameFrontRight, motorNameBackRight};
         for (int i=0; i<4; i++){
             hardwareMap.put(motorNames[i], new DcMotorExImpl(MOTOR_TYPE, motorController0, i));
         }

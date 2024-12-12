@@ -15,10 +15,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Xavier2024PenguinsOpMode extends LinearOpMode {
     public static class PARAMS {
         // drive motor setup
-        public String leftFrontDriveName = "front_left_motor";
-        public String leftBackDriveName = "back_left_motor";
-        public String rightFrontDriveName = "front_right_motor";
-        public String rightBackDriveName = "back_right_motor";
+        public String leftFrontDriveName = "leftFront";
+        public String leftBackDriveName = "leftBack";
+        public String rightFrontDriveName = "rightFront";
+        public String rightBackDriveName = "rightBack";
 
         public DcMotorSimple.Direction leftFrontDriveDirection = DcMotorSimple.Direction.REVERSE;
         public DcMotorSimple.Direction leftBackDriveDirection = DcMotorSimple.Direction.REVERSE;

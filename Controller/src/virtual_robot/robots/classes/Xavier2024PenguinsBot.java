@@ -134,7 +134,8 @@ public class Xavier2024PenguinsBot extends MecanumPhysicsBase {
      * Constructor.
      */
     public Xavier2024PenguinsBot() {
-        super();
+        //Override the names of the drive motors to match Xavier names
+        super(null, "leftBack", "leftFront", "rightFront", "rightBack" );
     }
 
     /**
