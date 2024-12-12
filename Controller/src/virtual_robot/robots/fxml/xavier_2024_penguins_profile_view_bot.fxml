@@ -19,7 +19,7 @@
     <children>
         <!--The lowest child objecet is a yellow rectangle measuring 75x75-->
         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="YELLOW" height="75.0" stroke="BLACK" strokeType="INSIDE" width="75.0" />
-        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="SILVER" height="40" stroke="BLACK" strokeType="INSIDE" width="75.0" x="0" y="35" />
+        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="SILVER" height="55.0" stroke="BLACK" strokeType="INSIDE" width="75.0" x="0" y="20" />
 
         <!--Wheel-->
         <Circle centerX="5.0" centerY="70.0" radius="10.0" strokeType="INSIDE" fill="BLUE" strokeWidth="0.0" />
@@ -30,6 +30,8 @@
 
                 <!-- The arm: note the fx:id attribute. This will instantiate a variable named "arm" in the ArmBot class. That
                      variable is of type Rectangle and is annotated with @FXML-->
+                <Rectangle fx:id="armProfileSlideBrace1" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="17.0" stroke="BLACK" strokeType="INSIDE" width="5.0" x="20" y="20" />
+                <Rectangle fx:id="armProfileSlideBrace2" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="17.0" stroke="BLACK" strokeType="INSIDE" width="5.0" x="40" y="20" />
                 <Rectangle fx:id="armProfileArm" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="75" x="0" y="20" />
                 <Rectangle fx:id="armProfileSlide" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="5.0" stroke="BLACK" strokeType="INSIDE" width="75" x="0" y="35" />
                 <Rectangle fx:id="armProfileSlideClaw" arcHeight="5.0" arcWidth="5.0" fill="MAGENTA" height="40.0" stroke="BLACK" strokeType="INSIDE" width="5.0" x="70" y="35" />

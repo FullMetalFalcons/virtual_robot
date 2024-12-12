@@ -86,7 +86,6 @@ public class Xavier2024PenguinsProfileViewBot { //extends MecanumPhysicsBase {
 
         //To extend, we need to make the arm longer, but we also have to shift the
         //  arm over so the pivot stays at the same spot on the left edge
-        armProfileArm.setWidth(initialArmWidthPx + armAddtlLengthPixels);
         armProfileSlide.setWidth(initialArmWidthPx + armAddtlLengthPixels);
         profileArmClawTranslate.setX(armAddtlLengthPixels);
     }
